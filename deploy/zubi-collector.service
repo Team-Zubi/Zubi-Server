@@ -1,0 +1,25 @@
+# 수집기 systemd 유닛 예시 — API와 별도 서비스로 등록해 API 재배포와 무관하게 계속 돈다.
+# 경로·사용자는 VM 구성에 맞게 바꿀 것.
+#
+#   sudo cp deploy/zubi-collector.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now zubi-collector
+#   journalctl -u zubi-collector -f
+[Unit]
+Description=Zubi parking data collector
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zubi
+WorkingDirectory=/opt/zubi/Zubi-Server
+ExecStart=/opt/zubi/Zubi-Server/.venv/bin/python -m app.collector
+Restart=always
+RestartSec=30
+# SIGTERM을 받으면 진행 중인 회차를 마치고 종료
+KillSignal=SIGTERM
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target
