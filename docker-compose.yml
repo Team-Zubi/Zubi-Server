@@ -1,0 +1,23 @@
+# 로컬 개발용 PostgreSQL + PostGIS
+#   docker compose up -d db
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    # 공식 이미지에 arm64 빌드가 없어 Apple Silicon에서는 amd64 에뮬레이션으로 실행
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: zubi
+      POSTGRES_PASSWORD: zubi
+      POSTGRES_DB: zubi
+    ports:
+      - "5432:5432"
+    volumes:
+      - zubi-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zubi -d zubi"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  zubi-db:
